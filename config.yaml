@@ -1,0 +1,36 @@
+# yaml-language-server: $schema=./node_modules/envio/evm.schema.json
+name: envio-indexer
+field_selection:
+  transaction_fields:
+    - "hash"
+    - "transactionIndex"
+networks:
+- id: 84532
+  start_block: 0
+  contracts:
+  - name: implementationContract
+    handler: src/EventHandlers.ts
+    events:
+    - event: Approval(address indexed owner, address indexed approved, uint256 indexed tokenId)
+    - event: ApprovalForAll(address indexed owner, address indexed operator, bool approved)
+    - event: BatchMetadataUpdate(uint256 _fromTokenId, uint256 _toTokenId)
+    - event: ContractURISet(string uri)
+    - event: Initialized(uint64 version)
+    - event: MetadataUpdate(uint256 _tokenId)
+    - event: OwnershipTransferred(address indexed previousOwner, address indexed newOwner)
+    - event: Paused(address account)
+    - event: Transfer(address indexed from, address indexed to, uint256 indexed tokenId)
+    - event: TransferWithIPFS(address indexed from, address indexed to, uint256 tokenid, string ipfsHash)
+    - event: TransferWithRemix(address indexed from, address indexed to, uint256 tokenid, uint256 parent)
+    - event: Unpaused(address account)
+  - name: factory
+    address:
+    - 0xb5F85cD629f7A959Ad48a1A0d6C4C7Fa24553296
+    handler: src/factory.ts
+    events:
+    - event: BeaconUpdated(string indexed beaconType, address indexed newBeacon)
+    - event: ClutchCollectionDeployed(address proxy, bytes data)
+    - event: OwnershipTransferred(address indexed previousOwner, address indexed newOwner)
+    - event: RemixCollectionDeployed(address proxy, bytes data)
+    - event: RemixWithTokenCollectionDeployed(address proxy, bytes data)
+  

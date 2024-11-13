@@ -1,0 +1,456 @@
+type Collection {
+    id: ID!
+    chain: BigInt! @index 
+    address: String! @index
+    creator: UserChainInfo  @index
+    owner: UserChainInfo  @index
+  
+
+    name:String
+    symbol:String
+    maxSupply:BigInt @index
+    metadatauri:String
+    metadatacontent:String
+    isPaused: Boolean
+    isFeatured: Boolean
+  
+
+    createdAt:BigInt @index
+    createdBlock: BigInt
+    error:String
+
+    updatedAt:BigInt @index
+    updatedBlock:BigInt
+
+    factory: Factory
+    tokens: [Token!]! @derivedFrom(field:"collection")
+    lists: [MarketPlace!]! @derivedFrom(field:"collection")
+    remixes: [Remix!]! @derivedFrom(field: "collection")
+    
+    baseCollectionId: String
+    baseTokenId: String
+    collectionType: String
+}
+
+type Remix {
+  id: ID!
+  chain: BigInt! @index
+  remixer: UserChainInfo
+  token: Token
+  collection: Collection
+  parent: Token
+}
+
+type Token @index(fields: ["collection", "owner"]) 
+@index(fields: ["collection", "creator"])
+{
+    id: ID!
+    chain: BigInt! @index
+    address:String! @index
+    collection: Collection! @index
+
+
+    createdAt:BigInt @index
+    createdBlock: BigInt @index
+    updatedAt:BigInt @index
+    updatedBlock:BigInt  @index
+
+    burnblocknumber: Int 
+    burnblocktimestamp: Int
+    burntxhash:  String @index
+    mintblocknumber: Int!
+    mintblocktimestamp: Int!
+    minttxhash: String!  @index
+
+
+    creator: UserChainInfo! @index
+    owner: UserChainInfo!  @index
+    model: String @index
+    standard: String
+    nsfw: Boolean
+    metadatauri:String
+    metadatacontent:String
+    error: String
+  
+    parent: Token @index
+    remixer: UserChainInfo
+    marketplace: MarketPlace @index
+    remix: [Remix!]! @derivedFrom(field: "token")
+    transfers: [Transfer!]! @derivedFrom(field:"token")
+
+    remixEnabled: Boolean
+    microTokenEnables: Boolean
+}
+
+type User {
+    id: ID!  
+    chains: [UserChainInfo!]! @derivedFrom(field: "user")
+    
+    createdAt:BigInt @index
+    createdBlock: BigInt
+
+    updatedAt:BigInt
+    updatedBlock: BigInt
+}
+
+type UserChainInfo {
+    id: ID!
+    chain: BigInt! @index  
+    address: String! @index 
+    user: User! @index 
+
+
+    createdAt:BigInt @index
+    createdBlock: BigInt
+
+    updatedAt:BigInt
+    updatedBlock: BigInt
+
+    collectionsCreated: [Collection!]! @derivedFrom(field:"creator")
+    collectionsOwned: [Collection!]! @derivedFrom(field:"owner")
+    tokensMinted: [Token!]! @derivedFrom(field:"creator")
+    tokensOwned: [Token!]! @derivedFrom(field:"owner")
+    tokenRemixes: [Token!]! @derivedFrom(field:"remixer")
+    tokensListed: [MarketPlace!]! @derivedFrom(field:"seller")
+}
+
+type MarketPlace @index(fields: ["collection", "listed"]) 
+  @index(fields:["collection","price"])
+  @index(fields:["collection", "createdAt"])
+{
+    id: ID!
+    address: String!
+    chain: BigInt! @index
+
+    createdAt:BigInt @index
+    createdBlock: BigInt
+    updatedAt:BigInt @index
+    updatedBlock:BigInt
+
+
+    buyer: UserChainInfo  @index
+    seller: UserChainInfo  @index
+    collection: Collection!
+    price:BigInt
+    listed:Boolean @index
+    listingid: BigInt! @index
+    paymenttoken: String @index
+    purchased:Boolean
+    token: Token!
+    error: String!
+   
+}
+
+
+
+type Factory_BeaconUpdated {
+  id: ID!
+  beaconType: String!
+  newBeacon: String!
+}
+
+type Factory_ClutchCollectionDeployed {
+  id: ID!
+  address: String! @index
+  chain: BigInt! @index
+  txhash: String! @index
+  transactionindex: Int!
+
+  createdAt:BigInt @index 
+  createdBlock: BigInt
+  factory: Factory! 
+  deployer: UserChainInfo!
+  collection: Collection!
+
+  proxy: String!
+  data: String!  
+}
+
+type Factory_OwnershipTransferred {
+  id: ID!
+  previousOwner: String!
+  newOwner: String!
+}
+
+type Factory_RemixCollectionDeployed {
+  id: ID!
+  address: String! @index
+  chain: BigInt! @index
+  txhash: String! @index
+  transactionindex: Int!
+
+  createdAt:BigInt @index 
+  createdBlock: BigInt
+  factory: Factory! 
+  deployer: UserChainInfo!
+  collection: Collection!
+
+  proxy: String!
+  data: String! 
+}
+
+type Factory_RemixWithTokenCollectionDeployed {
+  id: ID!
+  proxy: String!
+  data: String!
+}
+
+type Transfer  @index(fields: ["token", "createdAt"]) {
+  id: ID!
+  address: String! @index
+  chain: BigInt! @index
+  txhash: String! @index
+  transactionindex: Int!
+  logIndex: Int!
+
+  createdAt:BigInt @index 
+  createdBlock: BigInt
+
+
+  from: UserChainInfo!  @index
+  to: UserChainInfo!  @index
+  token: Token!  @index
+  collection: Collection!  @index
+
+
+  actiontype: String! @index
+  entitytype: String!
+  model: String @index
+
+}
+
+
+type Unpaused {
+  id: ID!
+  address: String! @index
+  chain: BigInt! @index
+  txhash: String! @index
+  transactionindex: Int!
+  collection: Collection
+
+  createdAt:BigInt @index 
+  createdBlock: BigInt
+}
+
+ 
+
+type Listing @index(fields:["collection","newPrice"])
+  @index(fields:["collection", "createdAt"])
+  {
+  id: ID!
+  address: String! @index
+  chain: BigInt! @index
+  txhash: String! @index
+  transactionindex: Int!
+
+  createdAt:BigInt @index 
+  createdBlock: BigInt
+
+  listingId: BigInt! @index
+  newPrice: BigInt! @index
+  paymentToken:String
+  seller: UserChainInfo!
+  token: Token
+  collection: Collection
+  listingError: String!
+
+}
+
+type NFTDelisted {
+  id: ID!
+  chain: BigInt! @index
+  address: String! @index
+ 
+  txhash: String! @index
+  transactionindex: Int!
+  collection: Collection
+  listingId: BigInt!
+
+  createdAt:BigInt @index 
+  createdBlock: BigInt
+}
+
+type Purchased {
+  id: ID!
+  address: String! @index
+  chain: BigInt! @index
+  txhash: String! @index
+  transactionindex: Int!
+
+
+  listingId: BigInt!
+  buyer: UserChainInfo!
+  collection: Collection
+  token: Token
+  price: BigInt!
+  paymentToken: String!
+
+  createdAt:BigInt @index 
+  createdBlock: BigInt
+}
+
+type ListingPriceUpdated {
+  id: ID!
+  address: String! @index
+  chain: BigInt! @index
+  txhash: String! @index
+  transactionindex: Int!
+
+  listingId: BigInt!
+  newPrice: BigInt!
+  collection: Collection
+
+  createdAt: BigInt @index
+  createdBlock: BigInt
+
+}
+
+type Approval {
+  id: ID!
+  address: String! @index
+  chain: BigInt! @index
+  txhash: String! @index
+  transactionindex: Int!
+
+  owner: String! @index
+  approved: String! @index
+  token: Token!
+
+  createdAt:BigInt @index 
+  createdBlock: BigInt
+}
+
+type ApprovalForAll {
+  id: ID!
+  address: String! @index
+  chain: BigInt! @index
+  txhash: String! @index
+  transactionindex: Int!
+
+
+  owner: String!
+  operator: String!
+  approved: Boolean!
+
+  createdAt:BigInt @index 
+  createdBlock: BigInt
+}
+
+type BatchMetadataUpdate {
+  id: ID!
+  address: String! @index
+  chain: BigInt! @index
+  txhash: String! @index
+  transactionindex: Int!
+
+  fromTokenId: BigInt!
+  toTokenId: BigInt!
+
+
+  createdAt:BigInt @index 
+  createdBlock: BigInt
+}
+
+type Initialized {
+  id: ID!
+  address: String! @index
+  chain: BigInt! @index
+  txhash: String! @index
+  transactionindex: Int!
+
+  version: BigInt!
+
+  createdAt:BigInt @index 
+  createdBlock: BigInt
+}
+
+type MetadataUpdate {
+  id: ID!
+  address: String! @index
+  chain: BigInt! @index
+  txhash: String! @index
+  transactionindex: Int!
+
+  token: Token!
+
+  createdAt:BigInt @index 
+  createdBlock: BigInt
+}
+
+type OwnershipTransferred {
+  id: ID!
+  address: String! @index
+  chain: BigInt! @index
+  txhash: String! @index
+  transactionindex: Int!
+
+
+  previousOwner: String!
+  newOwner: String!
+
+  createdAt:BigInt @index 
+  createdBlock: BigInt
+}
+
+type Paused {
+  id: ID!
+  address: String! @index
+  chain: BigInt! @index
+  txhash: String! @index
+  transactionindex: Int!
+  account: String!
+
+  collection: Collection
+
+  createdAt:BigInt @index 
+  createdBlock: BigInt
+}
+
+
+type FactoryOwnershipTransferred {
+
+  id: ID!
+  address: String! @index
+  chain: BigInt! @index
+  txhash: String! @index
+  transactionindex: Int!
+
+  factory: Factory!
+  previousOwner: UserChainInfo!
+  newOwner: UserChainInfo!
+ 
+
+  createdBlock: BigInt!
+  createdAt:BigInt @index
+}
+
+type ContractURI {
+
+  id: ID!
+  address: String! @index
+  chain: BigInt! @index
+  txhash: String! @index
+  transactionindex: Int!
+
+  uri: String! @index
+  
+  createdAt: BigInt!
+  createdBlock: BigInt! @index
+}
+
+type Factory {
+    id: ID!
+    chain: BigInt! @index
+    address: String!
+    creator: UserChainInfo  @index
+    owner: UserChainInfo  @index
+
+
+    deployed: [Collection!]! @derivedFrom(field:"factory")
+    totalDeployed: Int
+
+    createdAt:BigInt @index
+    createdBlock: BigInt
+    updatedAt:BigInt @index
+    updatedBlock:BigInt
+}
